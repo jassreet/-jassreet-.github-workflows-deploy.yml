@@ -1,11 +1,9 @@
-# deployment.yaml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: my-app
-  namespace: default
+  name: my-app-deployment
 spec:
-  replicas: 3  # Number of application instances
+  replicas: 3  # Define the number of replicas for scaling
   selector:
     matchLabels:
       app: my-app
@@ -15,29 +13,7 @@ spec:
         app: my-app
     spec:
       containers:
-      - name: my-app-container
-        image: your-docker-image:latest  # Replace with your Docker image
-        ports:
-        - containerPort: 80
-        envFrom:
-        - configMapRef:
-            name: app-config
-        readinessProbe:  # Ensure application readiness
-          httpGet:
-            path: /
-            port: 80
-          initialDelaySeconds: 5
-          periodSeconds: 10
-        livenessProbe:  # Restart the container if it becomes unresponsive
-          httpGet:
-            path: /
-            port: 80
-          initialDelaySeconds: 15
-          periodSeconds: 20
-        resources:  # Resource requests and limits
-          requests:
-            memory: "128Mi"
-            cpu: "250m"
-          limits:
-            memory: "256Mi"
-            cpu: "500m"
+        - name: my-app
+          image: my-app:latest
+          ports:
+            - containerPort: 80
