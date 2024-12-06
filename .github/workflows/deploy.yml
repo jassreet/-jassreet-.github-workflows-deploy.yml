@@ -37,18 +37,16 @@ jobs:
       # Step 5: Build the Docker image
       - name: Build Docker image
         run: |
-          docker build -t jass123saini/my-app:${{ github.sha }} .
+          docker build -t yourusername/my-app:${{ github.sha }} .
 
       # Step 6: Push Docker image to Docker Hub
       - name: Push Docker image to Docker Hub
         run: |
-          docker push jass123saini/my-app:${{ github.sha }}
+          docker push yourusername/my-app:${{ github.sha }}
 
-      # Step 7: Set up Kubernetes CLI (kubectl)
+      # Step 7: Set up Kubernetes CLI (kubectl) using the correct version
       - name: Set up Kubernetes CLI
-        uses: azure/setup-kubectl@v2
-        with:
-          version: 'v1.21.2'  # Specify the version of kubectl
+        uses: kubernetes-sigs/kustomize/actions/setup-kubectl@v1.0.0  # Corrected version
 
       # Step 8: Set up Kubeconfig (Authenticate to your Kubernetes Cluster)
       - name: Set up Kubeconfig
