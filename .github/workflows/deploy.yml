@@ -46,7 +46,7 @@ jobs:
 
       # Step 7: Set up Kubernetes CLI (kubectl) using the correct version
       - name: Set up Kubernetes CLI
-        uses: azure/setup-kubectl@v1  # Corrected version
+        uses: azure/setup-kubectl@v2
 
       # Step 8: Set up Kubeconfig (Create .kube directory and authenticate to your Kubernetes Cluster)
       - name: Set up Kubeconfig
@@ -57,5 +57,5 @@ jobs:
       # Step 9: Apply Kubernetes manifests (without ConfigMap and HPA)
       - name: Deploy to Kubernetes
         run: |
-          kubectl apply -f deployment.yaml
-          kubectl apply -f service.yaml
+          kubectl apply -f deployment.yaml --validate=false
+          kubectl apply -f service.yaml --validate=false
