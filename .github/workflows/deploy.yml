@@ -1,4 +1,4 @@
-name: Deploy to Kubernetes
+name: Deploy to Docker (or any other environment)
 
 on:
   push:
@@ -26,20 +26,3 @@ jobs:
       - name: Push Docker Image
         run: |
           docker push jass123saini/myapp:latest  # Push to the same image name you built
-
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v3
-        with:
-          version: 'latest'
-
-
-      - name: Apply Kubernetes Manifests
-        run: |
-          kubectl apply -f k8s/deployment.yaml
-          kubectl apply -f k8s/service.yaml
-
-      - name: Verify Deployment
-        run: |
-          kubectl rollout status deployment/myapp-deployment
-          kubectl get pods
-          kubectl get services
