@@ -37,21 +37,22 @@ jobs:
       # Step 5: Build the Docker image
       - name: Build Docker image
         run: |
-          docker build -t jass123saini/my-app:${{ github.sha }} .
+          docker build -t DELL/my-app:${{ github.sha }} .
 
       # Step 6: Push Docker image to Docker Hub
       - name: Push Docker image to Docker Hub
         run: |
-          docker push jass123saini/my-app:${{ github.sha }}
+          docker push DELL/my-app:${{ github.sha }}
 
       # Step 7: Set up Kubernetes CLI (kubectl) using the correct version
       - name: Set up Kubernetes CLI
         uses: azure/setup-kubectl@v1  # Corrected version
 
-      # Step 8: Set up Kubeconfig (Authenticate to your Kubernetes Cluster)
+      # Step 8: Set up Kubeconfig (Create .kube directory and authenticate to your Kubernetes Cluster)
       - name: Set up Kubeconfig
         run: |
-          echo "${{ secrets.K8S_KUBECONFIG }}" > ~/.kube/config
+          mkdir -p ~/.kube  # Create the .kube directory if it doesn't exist
+          echo "${{ secrets.K8S_KUBECONFIG }}" > ~/.kube/config  # Write the kubeconfig to the config file
 
       # Step 9: Apply Kubernetes manifests (without ConfigMap and HPA)
       - name: Deploy to Kubernetes
