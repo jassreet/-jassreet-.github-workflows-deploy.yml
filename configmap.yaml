@@ -1,9 +1,19 @@
-# configmap.yaml
 apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: app-config
-  namespace: default
-data:
-  APP_ENV: production
-  APP_DEBUG: "false"
+clusters:
+- cluster:
+    certificate-authority-data: <your-ca-data>
+    server: https://kubernetes.docker.internal:6443
+  name: docker-desktop
+contexts:
+- context:
+    cluster: docker-desktop
+    user: docker-desktop
+  name: docker-desktop
+current-context: docker-desktop
+kind: Config
+preferences: {}
+users:
+- name: docker-desktop
+  user:
+    client-certificate-data: <your-certificate-data>
+    client-key-data: <your-client-key-data>
