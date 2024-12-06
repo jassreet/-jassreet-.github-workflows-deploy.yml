@@ -1,44 +1,69 @@
-name: Kubernetes Deployment on Docker Desktop
+name: Build, Push, and Deploy Dockerized Application with Kubernetes
 
 on:
   push:
     branches:
-      - main  # Trigger on push to the main branch
+      - main  # Trigger the action on push to the main branch
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    # Step 1: Check out the code
-    - name: Checkout Code
-      uses: actions/checkout@v3
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    # Step 2: Set up kubeconfig
-    - name: Set up kubeconfig for Docker Desktop
-      run: |
-        mkdir -p ~/.kube
-        echo "${{ secrets.KUBECONFIG_CONTENT }}" > ~/.kube/config
-        chmod 600 ~/.kube/config
-      env:
-        KUBECONFIG: ~/.kube/config
+      # Step 2: Set up Docker Buildx (for multi-platform builds)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
 
-    # Step 3: Verify Kubernetes cluster access
-    - name: Verify Kubernetes Access
-      run: |
-        kubectl config view
-        kubectl get nodes
+      # Step 3: Cache Docker layers to speed up builds
+      - name: Cache Docker layers
+        uses: actions/cache@v2
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
 
-    # Step 4: Apply Kubernetes manifests
-    - name: Deploy Application to Kubernetes
-      run: |
-        kubectl apply -f configmap.yaml
-        kubectl apply -f deployment.yaml
-        kubectl apply -f service.yaml
-        kubectl apply -f hpa.yaml
+      # Step 4: Log in to Docker Hub (Replace with your Docker registry if necessary)
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}  # Store your Docker Hub username as a secret
+          password: ${{ secrets.DOCKER_PASSWORD }}  # Store your Docker Hub password as a secret
 
-    # Step 5: Verify Deployment
-    - name: Verify Pods and Services
-      run: |
-        kubectl get pods -o wide
-        kubectl get services -o wide
+      # Step 5: Build the Docker image
+      - name: Build Docker image
+        run: |
+          docker build -t jass123saini/my-app:${{ github.sha }} .
+
+      # Step 6: Push Docker image to Docker Hub
+      - name: Push Docker image to Docker Hub
+        run: |
+          docker push jass123saini/my-app:${{ github.sha }}
+
+      # Step 7: Install kubectl (manual installation)
+      - name: Install kubectl
+        run: |
+          curl -LO https://dl.k8s.io/release/v1.30.5/bin/linux/amd64/kubectl  # Download kubectl version v1.30.5
+          chmod +x ./kubectl
+          sudo mv ./kubectl /usr/local/bin/kubectl
+
+      # Step 8: Set up Kubeconfig (Create .kube directory and authenticate to your Kubernetes Cluster)
+      - name: Set up Kubeconfig
+        run: |
+          mkdir -p ~/.kube  # Create the .kube directory if it doesn't exist
+          echo "${{ secrets.K8S_KUBECONFIG }}" | base64 -d > ~/.kube/config  # Decode and save kubeconfig
+
+      # Step 9: Verify kubectl connection to the cluster
+      - name: Test kubectl connection
+        run: |
+          kubectl cluster-info  # This checks if kubectl can connect to the cluster
+
+      # Step 10: Apply Kubernetes manifests (Deployment and Service)
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl apply -f deployment.yaml --validate=false  # Apply deployment.yaml
+          kubectl apply -f service.yaml  # Apply service.yaml
