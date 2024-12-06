@@ -44,9 +44,11 @@ jobs:
         run: |
           docker push jass123saini/my-app:${{ github.sha }}
 
-      # Step 7: Set up Kubernetes CLI (kubectl) using the correct version
+      # Step 7: Set up Kubernetes CLI with version 1.30.5
       - name: Set up Kubernetes CLI
         uses: azure/setup-kubectl@v2
+        with:
+          version: 'v1.30.5'
 
       # Step 8: Set up Kubeconfig (Create .kube directory and authenticate to your Kubernetes Cluster)
       - name: Set up Kubeconfig
