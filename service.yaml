@@ -1,12 +1,14 @@
+# service.yaml
 apiVersion: v1
 kind: Service
 metadata:
-  name: myapp-service
+  name: my-app-service
+  namespace: default
 spec:
   selector:
-    app: myapp
+    app: my-app
   ports:
     - protocol: TCP
-      port: 80
-      targetPort: 3000
-  type: LoadBalancer
+      port: 80  # Service port
+      targetPort: 80  # Container port
+  type: LoadBalancer  # Use ClusterIP for internal access or NodePort if LoadBalancer is unavailable

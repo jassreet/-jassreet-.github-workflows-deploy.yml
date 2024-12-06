@@ -1,0 +1,9 @@
+# configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+  namespace: default
+data:
+  APP_ENV: production
+  APP_DEBUG: "false"
