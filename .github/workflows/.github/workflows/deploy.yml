@@ -21,8 +21,8 @@ jobs:
         
       - name: Build and Push Docker Image
         run: |
-          docker build -t damanhansrao/myapp:latest .
-          docker push damanhansrao/myapp:latest
+          docker build -t jass123saini/myapp:latest .
+          docker push jass123saini/myapp:latest
         
       - name: Set up kubectl
         uses: azure/setup-kubectl@v3
