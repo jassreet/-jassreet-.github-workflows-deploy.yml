@@ -16,8 +16,8 @@ jobs:
       - name: Log in to DockerHub
         uses: docker/login-action@v2
         with:
-          username: ${{ jass123saini }}
-          password: ${{ groupprojectdeveops }}
+          username: ${{ secrets.jass123saini }}   # Use the secret for Docker username
+          password: ${{ secrets.groupprojectdeveops }}   # Use the secret for Docker password
 
       - name: Build Docker Image
         run: |
@@ -25,7 +25,7 @@ jobs:
 
       - name: Push Docker Image
         run: |
-          docker push damanhansrao/myapp:latest
+          docker push jass123saini/myapp:latest  # Push to the same image name you built
 
       - name: Set up kubectl
         uses: azure/setup-kubectl@v3
