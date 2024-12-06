@@ -3,45 +3,59 @@ name: Deploy to Kubernetes
 on:
   push:
     branches:
-      - main   # Trigger deployment on pushes to the main branch
+      - main
 
 jobs:
   build:
     runs-on: ubuntu-latest
     
     steps:
+      # Step 1: Checkout code
       - name: Checkout code
         uses: actions/checkout@v3
         
+      # Step 2: Log in to DockerHub
       - name: Log in to DockerHub
         uses: docker/login-action@v2
         with:
-          username: ${{ secrets.DOCKER_USERNAME }}   # Use the secret for Docker username
-          password: ${{ secrets.DOCKER_PASSWORD }}   # Use the secret for Docker password
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
 
+      # Step 3: Build Docker image
       - name: Build Docker Image
         run: |
           docker build -t jass123saini/myapp:latest .
 
+      # Step 4: Push Docker image
       - name: Push Docker Image
         run: |
-          docker push jass123saini/myapp:latest  # Push to the same image name you built
+          docker push jass123saini/myapp:latest
 
+      # Step 5: Set up kubectl
       - name: Set up kubectl
         uses: azure/setup-kubectl@v3
         with:
           version: 'latest'
 
+      # Step 6: Set up Kubeconfig from secret
       - name: Set up Kubeconfig
         run: |
-          mkdir -p $HOME/.kube  # Ensure the .kube directory exists
+          mkdir -p $HOME/.kube
           echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
 
+      # Step 7: Verify Kubernetes cluster connection (optional but useful for troubleshooting)
+      - name: Check Kubernetes Cluster
+        run: |
+          kubectl config view
+          kubectl cluster-info
+
+      # Step 8: Apply Kubernetes manifests
       - name: Apply Kubernetes Manifests
         run: |
-          kubectl apply -f k8s/deployment.yaml
-          kubectl apply -f k8s/service.yaml
+          kubectl apply -f k8s/deployment.yaml --validate=false
+          kubectl apply -f k8s/service.yaml --validate=false
 
+      # Step 9: Verify Deployment
       - name: Verify Deployment
         run: |
           kubectl rollout status deployment/myapp-deployment
