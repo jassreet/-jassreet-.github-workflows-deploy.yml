@@ -44,26 +44,20 @@ jobs:
         run: |
           docker push jass123saini/my-app:${{ github.sha }}
 
-      # Step 7: Install kubectl (manual installation)
-      - name: Install kubectl
+      # Step 7: Set up Minikube for Kubernetes
+      - name: Set up Minikube
         run: |
-          curl -LO https://dl.k8s.io/release/v1.30.5/bin/linux/amd64/kubectl  # Download kubectl version v1.30.5
-          chmod +x ./kubectl
-          sudo mv ./kubectl /usr/local/bin/kubectl
+          curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
+          chmod +x minikube
+          sudo mv minikube /usr/local/bin/
+          minikube start --driver=docker
 
-      # Step 8: Set up Kubeconfig (Create .kube directory and authenticate to your Kubernetes Cluster)
-      - name: Set up Kubeconfig
-        run: |
-          mkdir -p ~/.kube  # Create the .kube directory if it doesn't exist
-          echo "${{ secrets.K8S_KUBECONFIG }}" | base64 -d > ~/.kube/config  # Decode and save kubeconfig
+      # Step 8: Set up kubectl
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v1
 
-      # Step 9: Verify kubectl connection to the cluster
-      - name: Test kubectl connection
-        run: |
-          kubectl cluster-info  # This checks if kubectl can connect to the cluster
-
-      # Step 10: Apply Kubernetes manifests (Deployment and Service)
+      # Step 9: Apply Kubernetes manifests
       - name: Deploy to Kubernetes
         run: |
-          kubectl apply -f deployment.yaml --validate=false  # Apply deployment.yaml
-          kubectl apply -f service.yaml  # Apply service.yaml
+          kubectl apply -f deployment.yaml
+          kubectl apply -f service.yaml
