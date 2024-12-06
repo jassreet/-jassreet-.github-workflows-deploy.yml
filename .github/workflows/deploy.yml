@@ -46,7 +46,7 @@ jobs:
 
       # Step 7: Set up Kubernetes CLI (kubectl) using the correct version
       - name: Set up Kubernetes CLI
-        uses: kubernetes-sigs/kustomize/actions/setup-kubectl@v1.0.0  # Corrected version
+        uses: azure/setup-kubectl@v1  # Corrected version
 
       # Step 8: Set up Kubeconfig (Authenticate to your Kubernetes Cluster)
       - name: Set up Kubeconfig
