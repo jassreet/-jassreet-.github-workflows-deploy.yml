@@ -44,26 +44,25 @@ jobs:
         run: |
           docker push jass123saini/my-app:${{ github.sha }}
 
-      # Step 7: Install kubectl (manual installation)
-      - name: Install kubectl
-        run: |
-          curl -LO "https://dl.k8s.io/release/v1.28.0/bin/linux/amd64/kubectl"
-          chmod +x ./kubectl
-          sudo mv ./kubectl /usr/local/bin/kubectl
+      # Step 7: Set up Kubernetes CLI (kubectl)
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v1
+        with:
+          version: 'v1.30.5'  # Ensure kubectl version matches your cluster version
 
       # Step 8: Set up Kubeconfig (Create .kube directory and authenticate to your Kubernetes Cluster)
       - name: Set up Kubeconfig
         run: |
           mkdir -p ~/.kube  # Create the .kube directory if it doesn't exist
-          echo "${{ secrets.K8S_KUBECONFIG }}" > ~/.kube/config  # Write the kubeconfig to the config file
+          echo "${{ secrets.K8S_KUBECONFIG }}" | base64 -d > ~/.kube/config  # Decode and save kubeconfig
 
-      # Step 9: Set Kubernetes context (use the correct context from your kubeconfig)
-      - name: Set Kubernetes context
+      # Step 9: Verify kubectl connection to the cluster
+      - name: Test kubectl connection
         run: |
-          kubectl config use-context <your-context-name>  # Replace with the correct context name from your kubeconfig
+          kubectl cluster-info  # This checks if kubectl can connect to the cluster
 
-      # Step 10: Apply Kubernetes manifests
+      # Step 10: Apply Kubernetes manifests (Deployment and Service)
       - name: Deploy to Kubernetes
         run: |
-          kubectl apply -f deployment.yaml --validate=false
-          kubectl apply -f service.yaml --validate=false
+          kubectl apply -f deployment.yaml --validate=false  # Apply deployment.yaml
+          kubectl apply -f service.yaml  # Apply service.yaml
