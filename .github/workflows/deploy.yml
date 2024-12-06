@@ -57,7 +57,12 @@ jobs:
           mkdir -p ~/.kube  # Create the .kube directory if it doesn't exist
           echo "${{ secrets.K8S_KUBECONFIG }}" > ~/.kube/config  # Write the kubeconfig to the config file
 
-      # Step 9: Apply Kubernetes manifests (without ConfigMap and HPA)
+      # Step 9: Set Kubernetes context (use the correct context from your kubeconfig)
+      - name: Set Kubernetes context
+        run: |
+          kubectl config use-context <your-context-name>  # Replace with the correct context name from your kubeconfig
+
+      # Step 10: Apply Kubernetes manifests
       - name: Deploy to Kubernetes
         run: |
           kubectl apply -f deployment.yaml --validate=false
