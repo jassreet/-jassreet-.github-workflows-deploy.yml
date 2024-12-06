@@ -1,4 +1,4 @@
-name: Kubernetes Deployment
+name: Kubernetes Deployment on Docker Desktop
 
 on:
   push:
@@ -14,22 +14,23 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v3
 
-    # Step 2: Set up kubectl and kubeconfig
-    - name: Set up kubectl
+    # Step 2: Set up kubeconfig
+    - name: Set up kubeconfig for Docker Desktop
       run: |
         mkdir -p ~/.kube
         echo "${{ secrets.KUBECONFIG_CONTENT }}" > ~/.kube/config
         chmod 600 ~/.kube/config
+      env:
+        KUBECONFIG: ~/.kube/config
 
     # Step 3: Verify Kubernetes cluster access
     - name: Verify Kubernetes Access
       run: |
-        kubectl version --client
         kubectl config view
         kubectl get nodes
 
-    # Step 4: Deploy Kubernetes Configurations
-    - name: Apply Kubernetes Manifests
+    # Step 4: Apply Kubernetes manifests
+    - name: Deploy Application to Kubernetes
       run: |
         kubectl apply -f configmap.yaml
         kubectl apply -f deployment.yaml
@@ -39,5 +40,5 @@ jobs:
     # Step 5: Verify Deployment
     - name: Verify Pods and Services
       run: |
-        kubectl get pods
-        kubectl get services
+        kubectl get pods -o wide
+        kubectl get services -o wide
