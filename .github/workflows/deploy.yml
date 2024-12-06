@@ -44,11 +44,12 @@ jobs:
         run: |
           docker push jass123saini/my-app:${{ github.sha }}
 
-      # Step 7: Set up Kubernetes CLI (kubectl)
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v1
-        with:
-          version: 'v1.30.5'  # Ensure kubectl version matches your cluster version
+      # Step 7: Install kubectl (manual installation)
+      - name: Install kubectl
+        run: |
+          curl -LO https://dl.k8s.io/release/v1.30.5/bin/linux/amd64/kubectl  # Download kubectl version v1.30.5
+          chmod +x ./kubectl
+          sudo mv ./kubectl /usr/local/bin/kubectl
 
       # Step 8: Set up Kubeconfig (Create .kube directory and authenticate to your Kubernetes Cluster)
       - name: Set up Kubeconfig
